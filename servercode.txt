@@ -1,0 +1,46 @@
+import socket
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+msg=MIMEMultipart()
+
+ 
+host = '192.168.137.5'
+port = 50008
+ 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((host, port))
+s.listen(1)
+conn, addr = s.accept()
+print ("Connection from", addr)
+while True:
+    counter=1
+    data = conn.recv(1024)
+    if not data: break
+    print("Recieved: "+(data))
+    if (data=='send mail please'):
+        while True:
+            print('mail')
+            msg['subject']="shubham"
+            fp=open("/home/pi/Desktop/pi/projectphoto/image{}.jpg".format(counter),"rb")
+            body="car photos"
+            msg.attach(MIMEText(body,'plain'))
+            content=MIMEImage(fp.read())
+            fp.close()
+            os.remove("/home/pi/Desktop/pi/projectphoto/image{}.jpg".format(counter))
+            msg.attach(content)
+            mail=smtplib.SMTP('smtp.gmail.com',587)
+            mail.ehlo()
+            mail.starttls()
+		
+            mail.login('shreshthar.speed17@gmail.com','tommymyfriend')
+            y=msg.as_string()
+            mail.sendmail('shresthar.speed17@gmail.com','mohit250570@gmail.com',y)
+            mail.close()
+            counter+=1
+            
+    if data == "exit":
+        break
+conn.close()
